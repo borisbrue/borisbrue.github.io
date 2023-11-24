@@ -1,9 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  ssr: false,
+  
   head: {
-    title: 'Boris Brue | Full Stack Developer',
+    title: 'Boris Bruenen | Full Stack Developer',
     htmlAttrs: {
       lang: 'de'
     },
@@ -22,14 +22,13 @@ export default defineNuxtConfig({
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
-    // https://go.nuxtjs.dev/typescript
-    '@nuxt/typescript-build',
   ],
+  
   nitro: {
-
+    serveStatic: true,
   },
   app: {
-    baseURL: '/borisbrue.github.io/', // baseURL: '/<repository>/'
+    // baseURL: '/borisbrue.github.io/', // baseURL: '/<repository>/'
     buildAssetsDir: 'assets', // don't use "_" at the begining of the folder name to avoids nojkill conflict
   },
   modules: [
