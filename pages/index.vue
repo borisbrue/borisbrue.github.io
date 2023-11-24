@@ -150,300 +150,282 @@
   </div>
 </template>
 
-<script setup></script>
-<script>
-import { onMounted, onUnmounted, ref } from "vue";
+<script setup>
+const interactionThreshold = 100;
+const mouseInteractionRadius = 100;
 
-export default {
-  name: "ParticleBackground",
+const particleCanvas = ref(null);
+let animationFrameId;
+let particles = [];
+let mouse = {
+  x: null,
+  y: null,
+  lastX: null,
+  lastY: null,
+  lastMoveTime: Date.now(),
+  speed: 0,
+  maxRadius: 1200, // Maximum radius value when mouse is stationary
+  minRadius: 100, // Minimum radius value when mouse is moving
 
-  setup() {
-    const interactionThreshold = 100;
-    const mouseInteractionRadius = 100;
+  updateSpeed() {
+    let dx = this.x - this.lastX;
+    let dy = this.y - this.lastY;
+    let distance = Math.sqrt(dx * dx + dy * dy);
+    let currentTime = Date.now();
+    let timeElapsed = currentTime - this.lastMoveTime;
 
-    const particleCanvas = ref(null);
-    let animationFrameId;
-    let particles = [];
-    let mouse = {
-      x: null,
-      y: null,
-      lastX: null,
-      lastY: null,
-      lastMoveTime: Date.now(),
-      speed: 0,
-      maxRadius: 1200, // Maximum radius value when mouse is stationary
-      minRadius: 100, // Minimum radius value when mouse is moving
-
-      updateSpeed() {
-        let dx = this.x - this.lastX;
-        let dy = this.y - this.lastY;
-        let distance = Math.sqrt(dx * dx + dy * dy);
-        let currentTime = Date.now();
-        let timeElapsed = currentTime - this.lastMoveTime;
-
-        if (timeElapsed > 0) {
-          this.speed = distance / timeElapsed;
-          this.lastMoveTime = currentTime;
-          this.lastX = this.x;
-          this.lastY = this.y;
-        }
-      },
-      updateRadius() {
-        // Expand radius when mouse is stationary
-        if (this.stationaryTime > 1000) {
-          // 1000 milliseconds threshold
-          this.interactionRadius += 1; // Gradually increase radius
-          if (this.interactionRadius > this.maxRadius) {
-            this.interactionRadius = this.maxRadius;
-          }
-        } else {
-          // Shrink radius when mouse moves
-          this.interactionRadius -= 5; // Rapid decrease
-          if (this.interactionRadius < this.minRadius) {
-            this.interactionRadius = this.minRadius;
-          }
-        }
-      },
-    };
-
-    const handleMouseMove = (event) => {
-      if (mouse.x !== event.x || mouse.y !== event.y) {
-        mouse.stationaryTime = 0; // Reset if mouse moves
-      } else {
-        // Increment stationary time if the mouse hasn't moved
-        mouse.stationaryTime += 10; // Adjust this interval as needed
+    if (timeElapsed > 0) {
+      this.speed = distance / timeElapsed;
+      this.lastMoveTime = currentTime;
+      this.lastX = this.x;
+      this.lastY = this.y;
+    }
+  },
+  updateRadius() {
+    // Expand radius when mouse is stationary
+    if (this.stationaryTime > 1000) {
+      // 1000 milliseconds threshold
+      this.interactionRadius += 1; // Gradually increase radius
+      if (this.interactionRadius > this.maxRadius) {
+        this.interactionRadius = this.maxRadius;
       }
-      mouse.x = event.x;
-      mouse.y = event.y;
-      mouse.updateSpeed();
-      mouse.updateRadius(); // Update the interaction radius
-    };
-
-    class Particle {
-      constructor() {
-        // Initial position and velocity
-        this.x = Math.random() * particleCanvas.value.width;
-        this.y = Math.random() * particleCanvas.value.height;
-        this.velocity = {
-          x: Math.random() - 0.5,
-          y: Math.random() - 0.5,
-        };
-        this.size = Math.random() * 20 + 5;
-        this.color = "hsl(" + Math.random() * 360 + ", 100%, 70%)"; // Aurora color scheme
-      }
-      moveToMouse() {
-        let dx = mouse.x - this.x;
-        let dy = mouse.y - this.y;
-        let distance = Math.sqrt(dx * dx + dy * dy);
-
-        let forceDirectionX = dx / distance;
-        let forceDirectionY = dy / distance;
-
-        // Increase force based on stationary time
-        let stationaryFactor = mouse.stationaryTime / 1000; // Increase over time
-        let force = ((100 - distance) / 100) * stationaryFactor;
-        force = Math.max(force, 0); // Ensure force is not negative
-
-        let directionX = forceDirectionX * force * this.size * 2; // Amplify force
-        let directionY = forceDirectionY * force * this.size * 2; // Amplify force
-
-        if (force > 0) {
-          this.x += directionX;
-          this.y += directionY;
-        }
-      }
-
-      update() {
-        // Ease in: Gradually increase velocity
-        this.velocity.x *= 1.05; // Adjust these factors to control the rate of speed increase
-        this.velocity.y *= 1.05;
-
-        // Update position
-        this.x += this.velocity.x * 0.1; // Slower movement
-        this.y += this.velocity.y * 0.1;
-
-        // Mouse interaction
-        if (mouse.x && mouse.y) {
-          let dx = this.x - mouse.x;
-          let dy = this.y - mouse.y;
-          let distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < mouseInteractionRadius) {
-            // Define this radius as needed
-            let force =
-              (mouseInteractionRadius - distance) / mouseInteractionRadius;
-            let stationaryFactor = Math.min(mouse.stationaryTime / 1000, 1);
-            force *= stationaryFactor; // Increase force when mouse is stationary
-
-            this.velocity.x -= (dx / distance) * force * 0.3;
-            this.velocity.y -= (dy / distance) * force * 0.3;
-          }
-        }
-
-        // Check horizontal boundaries
-        if (this.x > particleCanvas.value.width) {
-          this.x = 0;
-        } else if (this.x < 0) {
-          this.x = particleCanvas.value.width;
-        }
-
-        // Check vertical boundaries
-        if (this.y > particleCanvas.value.height) {
-          this.y = 0;
-        } else if (this.y < 0) {
-          this.y = particleCanvas.value.height;
-        }
-        // Ease out: Gradually decrease velocity
-        this.velocity.x *= 0.95; // Adjust these factors to control the rate of speed decrease
-        this.velocity.y *= 0.95;
-
-        // Optional: Implement boundaries or other logic
-      }
-
-      attract(otherParticle) {
-        let dx = this.x - otherParticle.x;
-        let dy = this.y - otherParticle.y;
-        let distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance === 0) distance = 0.01; // Avoid division by zero
-
-        let forceDirectionX = dx / distance;
-        let forceDirectionY = dy / distance;
-
-        // Gravitational force proportional to the size of this particle
-        let force = (this.size / distance) * 0.05; // Adjust 0.05 to scale the effect
-
-        let directionX = forceDirectionX * force;
-        let directionY = forceDirectionY * force;
-
-        otherParticle.velocity.x += directionX;
-        otherParticle.velocity.y += directionY;
-      }
-
-      draw(ctx) {
-        ctx.globalCompositeOperation = "lighter"; // Set blend mode
-
-        // Add a blur effect
-        // ctx.shadowBlur = 15; // Adjust this value to control the amount of blur
-        // ctx.shadowColor = this.color;
-
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Reset shadowBlur to avoid affecting other canvas elements
-        ctx.shadowBlur = 0;
+    } else {
+      // Shrink radius when mouse moves
+      this.interactionRadius -= 5; // Rapid decrease
+      if (this.interactionRadius < this.minRadius) {
+        this.interactionRadius = this.minRadius;
       }
     }
-
-    function init() {
-      for (let i = 0; i < 100; i++) {
-        particles.push(new Particle());
-      }
-    }
-    function interact(particle1, particle2) {
-      let dx = particle1.x - particle2.x;
-      let dy = particle1.y - particle2.y;
-      let distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < interactionThreshold && distance > 0) {
-        // Quadratic ease-in-ease-out calculation
-        let force = Math.pow(
-          (interactionThreshold - distance) / interactionThreshold,
-          2
-        );
-
-        let forceDirectionX = (dx / distance) * force;
-        let forceDirectionY = (dy / distance) * force;
-
-        particle1.velocity.x -= forceDirectionX * force * particle1.size * 0.1; // Reduced impact
-        particle1.velocity.y -= forceDirectionY * force * particle1.size * 0.1;
-        particle2.velocity.x += forceDirectionX * force * particle2.size * 0.1;
-        particle2.velocity.y += forceDirectionY * force * particle2.size * 0.1;
-      }
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-      const ctx = particleCanvas.value.getContext("2d");
-      ctx.clearRect(
-        0,
-        0,
-        particleCanvas.value.width,
-        particleCanvas.value.height
-      );
-
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          interact(particles[i], particles[j]);
-        }
-
-        particles[i].update();
-        particles[i].draw(ctx);
-      }
-    }
-
-    function resizeCanvas() {
-      particleCanvas.value.width = window.innerWidth;
-      particleCanvas.value.height = window.innerHeight;
-    }
-    function checkMouseStationary() {
-      if (mouse.x === mouse.lastX && mouse.y === mouse.lastY) {
-        mouse.stationaryTime += 10; // incrementing by the interval delay
-      } else {
-        mouse.stationaryTime = 0;
-        mouse.lastX = mouse.x;
-        mouse.lastY = mouse.y;
-      }
-    }
-
-    function pushParticle(particle, event) {
-      let dx = particle.x - event.clientX;
-      let dy = particle.y - event.clientY;
-      let distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance === 0) distance = 0.01; // Avoid division by zero
-
-      let forceDirectionX = dx / distance;
-      let forceDirectionY = dy / distance;
-
-      let force = 5; // Adjust this value to change the strength of the push
-
-      particle.velocity.x += forceDirectionX * force;
-      particle.velocity.y += forceDirectionY * force;
-    }
-
-    const handleClick = (event) => {
-      particles.forEach((particle) => {
-        pushParticle(particle, event);
-      });
-    };
-
-    let stationaryCheckInterval = setInterval(checkMouseStationary, 10);
-
-    onMounted(() => {
-      resizeCanvas();
-      init();
-      animate();
-      window.addEventListener("resize", resizeCanvas);
-      window.addEventListener("mousemove", handleMouseMove);
-      particleCanvas.value.addEventListener("click", handleClick);
-    });
-
-    onUnmounted(() => {
-      window.removeEventListener("resize", resizeCanvas);
-      window.removeEventListener("mousemove", handleMouseMove);
-      particleCanvas.value.removeEventListener("click", handleClick);
-      cancelAnimationFrame(animationFrameId);
-      clearInterval(stationaryCheckInterval);
-    });
-
-    return {
-      particleCanvas,
-    };
   },
 };
+
+const handleMouseMove = (event) => {
+  if (mouse.x !== event.x || mouse.y !== event.y) {
+    mouse.stationaryTime = 0; // Reset if mouse moves
+  } else {
+    // Increment stationary time if the mouse hasn't moved
+    mouse.stationaryTime += 10; // Adjust this interval as needed
+  }
+  mouse.x = event.x;
+  mouse.y = event.y;
+  mouse.updateSpeed();
+  mouse.updateRadius(); // Update the interaction radius
+};
+
+class Particle {
+  constructor() {
+    // Initial position and velocity
+    this.x = Math.random() * particleCanvas.value.width;
+    this.y = Math.random() * particleCanvas.value.height;
+    this.velocity = {
+      x: Math.random() - 0.5,
+      y: Math.random() - 0.5,
+    };
+    this.size = Math.random() * 20 + 5;
+    this.color = "hsl(" + Math.random() * 360 + ", 100%, 70%)"; // Aurora color scheme
+  }
+  moveToMouse() {
+    let dx = mouse.x - this.x;
+    let dy = mouse.y - this.y;
+    let distance = Math.sqrt(dx * dx + dy * dy);
+
+    let forceDirectionX = dx / distance;
+    let forceDirectionY = dy / distance;
+
+    // Increase force based on stationary time
+    let stationaryFactor = mouse.stationaryTime / 1000; // Increase over time
+    let force = ((100 - distance) / 100) * stationaryFactor;
+    force = Math.max(force, 0); // Ensure force is not negative
+
+    let directionX = forceDirectionX * force * this.size * 2; // Amplify force
+    let directionY = forceDirectionY * force * this.size * 2; // Amplify force
+
+    if (force > 0) {
+      this.x += directionX;
+      this.y += directionY;
+    }
+  }
+
+  update() {
+    // Ease in: Gradually increase velocity
+    this.velocity.x *= 1.05; // Adjust these factors to control the rate of speed increase
+    this.velocity.y *= 1.05;
+
+    // Update position
+    this.x += this.velocity.x * 0.1; // Slower movement
+    this.y += this.velocity.y * 0.1;
+
+    // Mouse interaction
+    if (mouse.x && mouse.y) {
+      let dx = this.x - mouse.x;
+      let dy = this.y - mouse.y;
+      let distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < mouseInteractionRadius) {
+        // Define this radius as needed
+        let force =
+          (mouseInteractionRadius - distance) / mouseInteractionRadius;
+        let stationaryFactor = Math.min(mouse.stationaryTime / 1000, 1);
+        force *= stationaryFactor; // Increase force when mouse is stationary
+
+        this.velocity.x -= (dx / distance) * force * 0.3;
+        this.velocity.y -= (dy / distance) * force * 0.3;
+      }
+    }
+
+    // Check horizontal boundaries
+    if (this.x > particleCanvas.value.width) {
+      this.x = 0;
+    } else if (this.x < 0) {
+      this.x = particleCanvas.value.width;
+    }
+
+    // Check vertical boundaries
+    if (this.y > particleCanvas.value.height) {
+      this.y = 0;
+    } else if (this.y < 0) {
+      this.y = particleCanvas.value.height;
+    }
+    // Ease out: Gradually decrease velocity
+    this.velocity.x *= 0.95; // Adjust these factors to control the rate of speed decrease
+    this.velocity.y *= 0.95;
+
+    // Optional: Implement boundaries or other logic
+  }
+
+  attract(otherParticle) {
+    let dx = this.x - otherParticle.x;
+    let dy = this.y - otherParticle.y;
+    let distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance === 0) distance = 0.01; // Avoid division by zero
+
+    let forceDirectionX = dx / distance;
+    let forceDirectionY = dy / distance;
+
+    // Gravitational force proportional to the size of this particle
+    let force = (this.size / distance) * 0.05; // Adjust 0.05 to scale the effect
+
+    let directionX = forceDirectionX * force;
+    let directionY = forceDirectionY * force;
+
+    otherParticle.velocity.x += directionX;
+    otherParticle.velocity.y += directionY;
+  }
+
+  draw(ctx) {
+    ctx.globalCompositeOperation = "lighter"; // Set blend mode
+
+    // Add a blur effect
+    // ctx.shadowBlur = 15; // Adjust this value to control the amount of blur
+    // ctx.shadowColor = this.color;
+
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Reset shadowBlur to avoid affecting other canvas elements
+    ctx.shadowBlur = 0;
+  }
+}
+
+function init() {
+  for (let i = 0; i < 100; i++) {
+    particles.push(new Particle());
+  }
+}
+function interact(particle1, particle2) {
+  let dx = particle1.x - particle2.x;
+  let dy = particle1.y - particle2.y;
+  let distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (distance < interactionThreshold && distance > 0) {
+    // Quadratic ease-in-ease-out calculation
+    let force = Math.pow(
+      (interactionThreshold - distance) / interactionThreshold,
+      2
+    );
+
+    let forceDirectionX = (dx / distance) * force;
+    let forceDirectionY = (dy / distance) * force;
+
+    particle1.velocity.x -= forceDirectionX * force * particle1.size * 0.1; // Reduced impact
+    particle1.velocity.y -= forceDirectionY * force * particle1.size * 0.1;
+    particle2.velocity.x += forceDirectionX * force * particle2.size * 0.1;
+    particle2.velocity.y += forceDirectionY * force * particle2.size * 0.1;
+  }
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  const ctx = particleCanvas.value.getContext("2d");
+  ctx.clearRect(0, 0, particleCanvas.value.width, particleCanvas.value.height);
+
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      interact(particles[i], particles[j]);
+    }
+
+    particles[i].update();
+    particles[i].draw(ctx);
+  }
+}
+
+function resizeCanvas() {
+  particleCanvas.value.width = window.innerWidth;
+  particleCanvas.value.height = window.innerHeight;
+}
+function checkMouseStationary() {
+  if (mouse.x === mouse.lastX && mouse.y === mouse.lastY) {
+    mouse.stationaryTime += 10; // incrementing by the interval delay
+  } else {
+    mouse.stationaryTime = 0;
+    mouse.lastX = mouse.x;
+    mouse.lastY = mouse.y;
+  }
+}
+
+function pushParticle(particle, event) {
+  let dx = particle.x - event.clientX;
+  let dy = particle.y - event.clientY;
+  let distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (distance === 0) distance = 0.01; // Avoid division by zero
+
+  let forceDirectionX = dx / distance;
+  let forceDirectionY = dy / distance;
+
+  let force = 5; // Adjust this value to change the strength of the push
+
+  particle.velocity.x += forceDirectionX * force;
+  particle.velocity.y += forceDirectionY * force;
+}
+
+const handleClick = (event) => {
+  particles.forEach((particle) => {
+    pushParticle(particle, event);
+  });
+};
+
+let stationaryCheckInterval = setInterval(checkMouseStationary, 10);
+
+onMounted(() => {
+  resizeCanvas();
+  init();
+  animate();
+  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("mousemove", handleMouseMove);
+  particleCanvas.value.addEventListener("click", handleClick);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", resizeCanvas);
+  window.removeEventListener("mousemove", handleMouseMove);
+  particleCanvas.value.removeEventListener("click", handleClick);
+  cancelAnimationFrame(animationFrameId);
+  clearInterval(stationaryCheckInterval);
+});
 </script>
 
 <style lang="postcss">
