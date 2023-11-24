@@ -25,10 +25,20 @@
               pointer-events-auto
             "
           >
-            <h2 class="text-8xl text-white text-center">
+            <div class="-mt-40 mb-4">
+              <div class="avatar">
+                <div class="w-48 mask mask-squircle">
+                  <img
+                    src="@/assets/Boris.webp"
+                    alt="Picture of Boris smiling at the camera"
+                  />
+                </div>
+              </div>
+            </div>
+            <h1 class="text-8xl text-white text-center">
               Hi there, <br />
-              I'm Boris.
-            </h2>
+              I'm Boris
+            </h1>
             <p class="mt-8 font-bold text-xl text-gray-100">
               "In the end we are all stories. <br />
               So lets make this a good one!"
@@ -104,7 +114,7 @@
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    height="1em"
+                    height="24px"
                     viewBox="0 0 512 512"
                     style="fill: currentColor; margin-top: 0px"
                   >
@@ -131,7 +141,7 @@
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    height="1em"
+                    height="24px"
                     viewBox="0 0 448 512"
                     style="fill: currentColor; margin-top: 0px"
                   >
