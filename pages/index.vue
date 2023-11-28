@@ -46,7 +46,7 @@
             <ul class="text-center">
               <li class="mt-8 text-gray-100">
                 <a
-                  href="https://zuckersalzundpferffer.de"
+                  href="https://zuckersalzundpfeffer.de"
                   target="_blank"
                   class="
                     text-gray-100
