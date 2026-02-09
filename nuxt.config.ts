@@ -21,9 +21,10 @@ export default defineNuxtConfig({
 
   nitro: {
     serveStatic: true,
+    preset: 'github-pages',
   },
   app: {
-    // baseURL: '/borisbrue.github.io/', // baseURL: '/<repository>/'
+    baseURL: process.env.NUXT_APP_BASE_URL || '/',
     buildAssetsDir: 'assets', // don't use "_" at the begining of the folder name to avoids nojkill conflict
   },
   modules: [
