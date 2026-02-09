@@ -52,6 +52,7 @@ jobs:
           node-version: "20"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
       - name: Setup Pages
+        id: pages
         uses: actions/configure-pages@v5
         with:
           # Automatically inject router.base in your Nuxt configuration file and set
@@ -71,6 +72,9 @@ jobs:
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Static HTML export with Nuxt
+        env:
+          # Ensure Nuxt builds with the Pages base path ("/" for user sites or "/repo/" for project sites)
+          NUXT_APP_BASE_URL: ${{ steps.pages.outputs.base_path }}
         run: ${{ steps.detect-package-manager.outputs.manager }} run generate
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
