@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  compatibilityDate: '2026-02-09',
   
   // head: {
   //   title: 'Boris Bruenen | Full Stack Developer',

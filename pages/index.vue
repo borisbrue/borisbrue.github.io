@@ -418,12 +418,13 @@ const handleClick = (event) => {
   });
 };
 
-let stationaryCheckInterval = setInterval(checkMouseStationary, 10);
+let stationaryCheckInterval;
 
 onMounted(() => {
   resizeCanvas();
   init();
   animate();
+  stationaryCheckInterval = window.setInterval(checkMouseStationary, 10);
   window.addEventListener("resize", resizeCanvas);
   window.addEventListener("mousemove", handleMouseMove);
   particleCanvas.value.addEventListener("click", handleClick);
@@ -434,7 +435,9 @@ onUnmounted(() => {
   window.removeEventListener("mousemove", handleMouseMove);
   particleCanvas.value.removeEventListener("click", handleClick);
   cancelAnimationFrame(animationFrameId);
-  clearInterval(stationaryCheckInterval);
+  if (stationaryCheckInterval !== undefined) {
+    clearInterval(stationaryCheckInterval);
+  }
 });
 </script>
 
