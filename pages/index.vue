@@ -452,6 +452,6 @@ onUnmounted(() => {
   unicode-range: U+1F00-1FFF;
 }
 a {
-  @apply underline text-center cursor-pointer;
+  @apply underline text-center cursor-pointer
 }
 </style>
