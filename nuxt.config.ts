@@ -26,7 +26,10 @@ export default defineNuxtConfig({
       // Pre-render the homepage
       routes: ['/'],
       // Then crawl all the links on the page
-      crawlLinks: true
+      crawlLinks: true,
+      // Skip known false positives that GitHub Pages doesn't serve
+      ignore: ['/404.html', '/200.html', '/__nuxt_content/**'],
+      failOnError: false
     }
    
   },
