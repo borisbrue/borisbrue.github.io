@@ -31,7 +31,5 @@ export default defineNuxtConfig({
     '@nuxt/content',
     '@nuxtjs/tailwindcss'
   ],
-  content: {
-    // ... options
-  }
+  
 })

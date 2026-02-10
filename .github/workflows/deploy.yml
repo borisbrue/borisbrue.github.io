@@ -54,30 +54,24 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
-        with:
+        #with:
           # Automatically inject router.base in your Nuxt configuration file and set
           # target to static (https://nuxtjs.org/docs/configuration-glossary/configuration-target/).
           #
           # You may remove this line if you want to manage the configuration yourself.
-          static_site_generator: nuxt
+          # static_site_generator: nuxt
       - name: Install dependencies
         env:
-          NPM_CONFIG_PRODUCTION: "false" # ensure devDependencies are installed
           NODE_ENV: development
-        run: npm ci --include=dev
-      - name: Verify Tailwind toolchain
-        run: |
-          npm ls tailwindcss @nuxtjs/tailwindcss daisyui @tailwindcss/typography postcss autoprefixer || true
-          node -e "console.log('tailwindcss:', require.resolve('tailwindcss'))"
-          node -e "console.log('@nuxtjs/tailwindcss:', require.resolve('@nuxtjs/tailwindcss'))"
+        run: npm install
+     
       - name: Static HTML export with Nuxt
         env:
           # Ensure Nuxt builds with the Pages base path ("/" for user sites or "/repo/" for project sites)
           NUXT_APP_BASE_URL: ${{ steps.pages.outputs.base_path }}
           NITRO_PRESET: github-pages
           NODE_ENV: development
-          TAILWIND_MODE: build
-        run: npm run generate -- --log-level=info
+        run: npm run generate
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
