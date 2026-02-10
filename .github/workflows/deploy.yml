@@ -65,12 +65,19 @@ jobs:
           NPM_CONFIG_PRODUCTION: "false" # ensure devDependencies are installed
           NODE_ENV: development
         run: npm ci --include=dev
+      - name: Verify Tailwind toolchain
+        run: |
+          npm ls tailwindcss @nuxtjs/tailwindcss daisyui @tailwindcss/typography postcss autoprefixer || true
+          node -e "console.log('tailwindcss:', require.resolve('tailwindcss'))"
+          node -e "console.log('@nuxtjs/tailwindcss:', require.resolve('@nuxtjs/tailwindcss'))"
       - name: Static HTML export with Nuxt
         env:
           # Ensure Nuxt builds with the Pages base path ("/" for user sites or "/repo/" for project sites)
           NUXT_APP_BASE_URL: ${{ steps.pages.outputs.base_path }}
           NITRO_PRESET: github-pages
-        run: ${{ steps.detect-package-manager.outputs.manager }} run generate
+          NODE_ENV: development
+          TAILWIND_MODE: build
+        run: npm run generate -- --log-level=info
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
