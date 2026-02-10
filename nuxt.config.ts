@@ -25,10 +25,10 @@ export default defineNuxtConfig({
    
   },
   app: {
-    // For GitHub Pages the site lives under /borisbrue.github.io/
-    // Use relative assets dir so Vue Router doesn't try to navigate to /assets/
-    baseURL: process.env.NUXT_APP_BASE_URL || '/',
-    buildAssetsDir: 'assets',
+    // GitHub Pages serves the site from /borisbrue.github.io/
+    baseURL: process.env.NUXT_APP_BASE_URL || '/borisbrue.github.io/',
+    // Force asset URLs to be absolute so /blog/* routes don't resolve relatively
+    buildAssetsDir: '/assets/',
   },
   modules: ['@nuxt/content', '@nuxtjs/tailwindcss', '@nuxt/image', 'nuxt-studio'],
   studio: {
