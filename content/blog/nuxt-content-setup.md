@@ -24,3 +24,5 @@ Nuxt Content handles parsing markdown, generating a table of contents, and expos
     console.log('Code block')
   }
   ```
+
+  ![A Cool Image](https://nuxt.com/assets/design-kit/icon-green.png)

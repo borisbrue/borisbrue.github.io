@@ -42,6 +42,21 @@
               </div>
             </div>
             <div class="space-y-2">
+              <NuxtImg
+                v-if="post.meta.cover"
+                :src="post.meta.cover"
+                
+                 format="webp"
+                alt="Cover image for {{ post.title }}"
+                
+                fit="cover"
+                densities="x1 x2"
+                width="426"
+                height="284"
+                class="aspect-video rounded object-cover"
+              />
+            </div>
+            <div class="space-y-2">
               <h2 class="text-2xl font-semibold text-white group-hover:text-gray-200">
                 {{ post.title }}
               </h2>
@@ -55,6 +70,13 @@
 </template>
 
 <script setup>
+definePageMeta({
+  pageTransition: {
+    name: 'blog-page',
+    mode: 'out-in',
+  },
+});
+
 const { data: posts } = await useAsyncData('blog', () => queryCollection('blog').all())
 const visiblePosts = computed(() => posts.value || []);
 
@@ -72,4 +94,5 @@ const formatDate = (value) => {
     day: "numeric",
   });
 };
+console.log('Loaded posts:', visiblePosts.value);
 </script>

@@ -68,12 +68,16 @@ jobs:
           NUXT_APP_BASE_URL: ${{ steps.pages.outputs.base_path }}
           NITRO_PRESET: github-pages
           
+          
         run: npm run generate
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Nuxt 3 `generate` writes the prerendered site to .output/public
           path: ./.output/public
+        env:
+          STUDIO_GITHUB_CLIENT_ID: ${{ secrets.STUDIO_GITHUB_CLIENT_ID }}
+          STUDIO_GITHUB_CLIENT_SECRET: ${{ secrets.STUDIO_GITHUB_CLIENT_SECRET }}
 
   # Deployment job
   deploy:

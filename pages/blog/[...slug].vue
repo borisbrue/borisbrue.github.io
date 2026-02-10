@@ -39,6 +39,13 @@
 </template>
 
 <script setup>
+definePageMeta({
+  pageTransition: {
+    name: 'blog-page',
+    mode: 'out-in',
+  },
+});
+
 const route = useRoute();
 const { data: post } = await useAsyncData(route.path, () => {
   return queryCollection('blog').path(route.path).first()

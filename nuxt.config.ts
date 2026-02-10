@@ -22,15 +22,32 @@ export default defineNuxtConfig({
   nitro: {
     serveStatic: true,
     preset: 'github-pages',
+    prerender: {
+      // Pre-render the homepage
+      routes: ['/'],
+      // Then crawl all the links on the page
+      crawlLinks: true
+    }
   },
   app: {
-          baseURL: process.env.NUXT_APP_BASE_URL || '/',
-    buildAssetsDir: '/assets/', // keep absolute path so assets are not resolved relative to nested routes
+    // For GitHub Pages the site lives under /borisbrue.github.io/
+    // Use relative assets dir so Vue Router doesn't try to navigate to /assets/
+    baseURL: process.env.NUXT_APP_BASE_URL || '/',
+    buildAssetsDir: 'assets',
   },
-  modules: [
-    '@nuxt/content',
-    '@nuxtjs/tailwindcss'
-  ],
+  modules: ['@nuxt/content', '@nuxtjs/tailwindcss', '@nuxt/image', 'nuxt-studio'],
+  studio: {
+    // Studio admin route (default: '/_studio')
+    route: '/_studio',
+    
+    // Git repository configuration (owner and repo are required)
+    repository: {
+      provider: 'github', // 'github' or 'gitlab'
+      owner: 'borisbrue', // your GitHub/GitLab username or organization
+      repo: 'borisbrue.github.io', // your repository name
+      branch: 'main', // the branch to commit to (default: main)
+    }
+  },
   content: {
     build: {
       markdown: {
@@ -42,7 +59,7 @@ export default defineNuxtConfig({
           // OR
           theme: {
             // Default theme (same as single string)
-            default: 'monokai',
+            default: 'github-dark',
             // Theme used if `html.dark`
             dark: 'github-dark',
             // Theme used if `html.sepia`
