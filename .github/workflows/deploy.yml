@@ -73,7 +73,7 @@ jobs:
         env:
           NPM_CONFIG_PRODUCTION: "false" # ensure devDependencies are installed
           NODE_ENV: development
-        run: npm ci --include=dev
+        run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Static HTML export with Nuxt
         env:
           # Ensure Nuxt builds with the Pages base path ("/" for user sites or "/repo/" for project sites)
