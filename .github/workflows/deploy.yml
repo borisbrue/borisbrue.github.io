@@ -70,7 +70,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuxt-build-
       - name: Install dependencies
-        run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+        run: npm ci --include=dev
       - name: Static HTML export with Nuxt
         env:
           # Ensure Nuxt builds with the Pages base path ("/" for user sites or "/repo/" for project sites)
