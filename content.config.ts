@@ -6,9 +6,6 @@ export default defineContentConfig({
       type: 'page',
       source: 'blog/**/*.md'
     }),
-    pages: defineCollection({
-      type: 'page',
-      source: '*.md'
-    })
+    
   }
 })
