@@ -22,12 +22,7 @@ export default defineNuxtConfig({
   nitro: {
     serveStatic: true,
     preset: 'github-pages',
-    prerender: {
-      // Pre-render the homepage
-      routes: ['/'],
-      // Then crawl all the links on the page
-      crawlLinks: true
-    }
+   
   },
   app: {
     // For GitHub Pages the site lives under /borisbrue.github.io/
