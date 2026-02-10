@@ -17,3 +17,10 @@ This site now uses the Nuxt Content module to render markdown safely on the serv
 3. Render the full post with `<ContentRenderer>` for the selected slug.
 
 Nuxt Content handles parsing markdown, generating a table of contents, and exposing the document through composables, so the pages stay small and maintainable.
+
+
+  ```js [file.js]{2} meta-info=val
+  export default () => {
+    console.log('Code block')
+  }
+  ```

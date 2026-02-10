@@ -24,12 +24,32 @@ export default defineNuxtConfig({
     preset: 'github-pages',
   },
   app: {
-    baseURL: process.env.NUXT_APP_BASE_URL || '/',
+          baseURL: process.env.NUXT_APP_BASE_URL || '/',
     buildAssetsDir: '/assets/', // keep absolute path so assets are not resolved relative to nested routes
   },
   modules: [
     '@nuxt/content',
     '@nuxtjs/tailwindcss'
   ],
-  
+  content: {
+    build: {
+      markdown: {
+        contentHeading: true,
+        highlight: {
+          
+          // Theme used in all color schemes.
+          // theme: 'github-light',
+          // OR
+          theme: {
+            // Default theme (same as single string)
+            default: 'monokai',
+            // Theme used if `html.dark`
+            dark: 'github-dark',
+            // Theme used if `html.sepia`
+            sepia: 'monokai'
+          }
+        }
+      }
+    }
+  }
 })

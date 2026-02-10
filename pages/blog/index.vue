@@ -23,17 +23,17 @@
       <div v-else class="grid gap-6 sm:grid-cols-2">
         <article
           v-for="post in visiblePosts"
-          :key="post._path"
-          class="group rounded-xl border border-white/5 bg-white/5 p-6 backdrop-blur-sm transition hover:-translate-y-1 hover:border-white/15"
+          :key="post.path"
+          class="group rounded-xl border border-white/5 bg-white/5 p-6 backdrop-blur-sm transition hover:-translate-y-1 hover:border-white/15 cursor-pointer"
         >
           <NuxtLink :to="post.path" :key="post.id" class="block space-y-3">
             <div class="flex items-center gap-3 text-sm text-gray-400">
               <span class="rounded-full bg-white/5 px-3 py-1 font-medium">
-                {{ formatDate(post.date) }}
+                {{ formatDate(post.meta.date) }}
               </span>
               <div class="flex flex-wrap gap-2">
                 <span
-                  v-for="tag in post.tags || []"
+                  v-for="tag in post.meta.tags || []"
                   :key="tag"
                   class="rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-wide"
                 >
