@@ -25,7 +25,7 @@ export default defineNuxtConfig({
   },
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL || '/',
-    buildAssetsDir: 'assets', // don't use "_" at the begining of the folder name to avoids nojkill conflict
+    buildAssetsDir: '/assets/', // keep absolute path so assets are not resolved relative to nested routes
   },
   modules: [
     '@nuxt/content',

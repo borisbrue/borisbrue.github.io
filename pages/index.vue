@@ -29,7 +29,7 @@
               <div class="avatar">
                 <div class="w-48 mask mask-squircle">
                   <img
-                    src="@/assets/Boris.webp"
+                    src="/gBoris.webp"
                     alt="Picture of Boris smiling at the camera"
                   />
                 </div>
